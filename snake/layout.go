@@ -17,7 +17,13 @@ func NewLayout(layoutSizeX, layoutSizeY int) *Layout {
 	return l
 }
 
-func (l *Layout) Update() error {
+func (l *Layout) Update(input *Input) error {
+	if err := l.board.Update(input); err != nil {
+		return err
+	}
+	if err := l.info.Update(input); err != nil {
+		return err
+	}
 	return nil
 }
 

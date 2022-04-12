@@ -14,10 +14,13 @@ const (
 
 type Game struct {
 	layout *Layout
+	input  *Input
 }
 
 func NewGame(sizeX, sizeY int) *Game {
-	g := &Game{}
+	g := &Game{
+		input: NewInput(),
+	}
 	g.layout = NewLayout(sizeX, sizeY)
 	return g
 }
@@ -27,7 +30,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func (g *Game) Update() error {
-	return g.layout.Update()
+	g.input.Update()
+	return g.layout.Update(g.input)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {

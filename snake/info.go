@@ -28,7 +28,7 @@ func (i *Info) Size() (int, int) {
 	return i.sizeX, i.sizeY
 }
 
-func (i *Info) Update() error {
+func (i *Info) Update(inout *Input) error {
 	return nil
 }
 

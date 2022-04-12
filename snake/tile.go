@@ -31,10 +31,6 @@ func NewTile(tileType TileType) *Tile {
 	return t
 }
 
-func (t *Tile) Update() error {
-	return nil
-}
-
 func (t *Tile) Draw(tileImage *ebiten.Image) {
 	switch t.tileType {
 	case empty:
@@ -44,4 +40,22 @@ func (t *Tile) Draw(tileImage *ebiten.Image) {
 	case snake:
 		tileImage.Fill(snakeColor)
 	}
+}
+
+func (t *Tile) Snake() {
+	t.tileType = snake
+}
+
+func (t *Tile) Clone() *Tile {
+	return &Tile{
+		tileType: t.tileType,
+	}
+}
+
+func (t *Tile) IsFood() bool {
+	return t.tileType == food
+}
+
+func (t *Tile) Empty() {
+	t.tileType = empty
 }
