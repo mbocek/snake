@@ -1,7 +1,6 @@
 package snake
 
 import (
-	"image/color"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -44,14 +43,15 @@ func (b *Board) Size() (int, int) {
 
 func (b *Board) Update(input *Input) error {
 	if b.initDone {
-		b.move(input)
+		if err := b.move(input); err != nil {
+			return err
+		}
 		b.applySnake()
 	}
 	return nil
 }
 
 func (b *Board) Draw(boardImage *ebiten.Image) {
-	boardImage.Fill(color.RGBA{0xbb, 0x00, 0x00, 0xaa})
 	if !b.isTilesInitialized() {
 		b.init()
 	}
@@ -79,6 +79,7 @@ func (b *Board) init() {
 		b.tileImages[i] = make([]*ebiten.Image, b.xTiles)
 		for j := range b.tiles[i] {
 			b.tiles[i][j] = NewTile(TileType(b.randomTileType(100)))
+			// TODO: use copy func
 			b.tilesWithSnake[i][j] = b.tiles[i][j].Clone()
 			b.tileImages[i][j] = ebiten.NewImage(tileSize, tileSize)
 		}
@@ -94,17 +95,18 @@ func (b *Board) isTilesInitialized() bool {
 	return b.tiles != nil
 }
 
-func (b *Board) move(input *Input) {
+func (b *Board) move(input *Input) error {
 	switch input.direction {
 	case topDirection:
-		b.snake.MoveUp(b.tiles)
+		return b.snake.MoveUp(b.tiles)
 	case bottomDirection:
-		b.snake.MoveDown(b.tiles)
+		return b.snake.MoveDown(b.tiles)
 	case rightDirection:
-		b.snake.MoveRight(b.tiles)
+		return b.snake.MoveRight(b.tiles)
 	case leftDirection:
-		b.snake.MoveLeft(b.tiles)
+		return b.snake.MoveLeft(b.tiles)
 	}
+	return nil
 }
 
 func (b *Board) applySnake() {

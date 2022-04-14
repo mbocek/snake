@@ -14,6 +14,7 @@ const (
 
 type Input struct {
 	direction int
+	restart   bool
 }
 
 func NewInput() *Input {
@@ -35,4 +36,14 @@ func (i *Input) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
 		i.direction = leftDirection
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		i.restart = true
+	}
+}
+
+func (i *Input) ClearRestart() bool {
+	if i.restart {
+		i.restart = false
+	}
+	return i.restart
 }

@@ -1,9 +1,8 @@
 package snake
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 const (
@@ -13,8 +12,9 @@ const (
 )
 
 type Game struct {
-	layout *Layout
-	input  *Input
+	layout   *Layout
+	input    *Input
+	gameOver bool
 }
 
 func NewGame(sizeX, sizeY int) *Game {
@@ -31,10 +31,16 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func (g *Game) Update() error {
 	g.input.Update()
-	return g.layout.Update(g.input)
+	if err := g.layout.Update(g.input); err != nil {
+		g.gameOver = true
+	}
+	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{0xfa, 0xf8, 0xef, 0xff})
-	g.layout.Draw(screen)
+	if g.gameOver {
+		ebitenutil.DebugPrint(screen, "Game Over!")
+	} else {
+		g.layout.Draw(screen)
+	}
 }
