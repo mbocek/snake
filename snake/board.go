@@ -4,6 +4,8 @@ import (
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -19,7 +21,7 @@ type Board struct {
 	xTiles         int
 	yTiles         int
 	snake          *Snake
-	initDone       bool
+	snakeDirection int
 }
 
 type Tiles [][]*Tile
@@ -27,13 +29,15 @@ type TileImages [][]*ebiten.Image
 
 func NewBoard(sizeX, sizeY int) *Board {
 	b := &Board{
-		sizeX:    sizeX,
-		sizeY:    sizeY,
-		xTiles:   sizeX / tileSize,
-		yTiles:   sizeY / tileSize,
-		initDone: false,
+		sizeX:          sizeX,
+		sizeY:          sizeY,
+		xTiles:         sizeX / tileSize,
+		yTiles:         sizeY / tileSize,
+		snakeDirection: -1,
 	}
-	b.snake = NewSnake(b.xTiles, b.yTiles)
+	b.init()
+	bus.Subscribe(topicMove, b.directionHandler)
+	bus.Subscribe(topicRestart, b.restartHandler)
 	return b
 }
 
@@ -41,20 +45,13 @@ func (b *Board) Size() (int, int) {
 	return b.sizeX, b.sizeY
 }
 
-func (b *Board) Update(input *Input) error {
-	if b.initDone {
-		if err := b.move(input); err != nil {
-			return err
-		}
-		b.applySnake()
-	}
+func (b *Board) Update() error {
+	b.applySnake()
+	b.snake.Move(b.snakeDirection)
 	return nil
 }
 
 func (b *Board) Draw(boardImage *ebiten.Image) {
-	if !b.isTilesInitialized() {
-		b.init()
-	}
 	b.drawTiles(boardImage)
 }
 
@@ -79,34 +76,15 @@ func (b *Board) init() {
 		b.tileImages[i] = make([]*ebiten.Image, b.xTiles)
 		for j := range b.tiles[i] {
 			b.tiles[i][j] = NewTile(TileType(b.randomTileType(100)))
-			// TODO: use copy func
-			b.tilesWithSnake[i][j] = b.tiles[i][j].Clone()
 			b.tileImages[i][j] = ebiten.NewImage(tileSize, tileSize)
 		}
+		copy(b.tilesWithSnake[i], b.tiles[i])
 	}
-	b.initDone = true
+	b.snake = NewSnake(b.tiles)
 }
 
 func (b *Board) randomTileType(entropy int) int {
 	return rand.Intn(entropy+1) / entropy
-}
-
-func (b *Board) isTilesInitialized() bool {
-	return b.tiles != nil
-}
-
-func (b *Board) move(input *Input) error {
-	switch input.direction {
-	case topDirection:
-		return b.snake.MoveUp(b.tiles)
-	case bottomDirection:
-		return b.snake.MoveDown(b.tiles)
-	case rightDirection:
-		return b.snake.MoveRight(b.tiles)
-	case leftDirection:
-		return b.snake.MoveLeft(b.tiles)
-	}
-	return nil
 }
 
 func (b *Board) applySnake() {
@@ -118,4 +96,14 @@ func (b *Board) applySnake() {
 	for _, v := range b.snake.positions {
 		b.tilesWithSnake[v.y][v.x].Snake()
 	}
+}
+
+func (b *Board) directionHandler(direction int) {
+	b.snakeDirection = direction
+}
+
+func (b *Board) restartHandler() {
+	log.Debug("Restart board")
+	b.snakeDirection = -1
+	b.init()
 }

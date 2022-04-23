@@ -13,15 +13,14 @@ func NewLayout(layoutSizeX, layoutSizeY int) *Layout {
 	l := &Layout{}
 	l.board = NewBoard(layoutSizeX-infoWidth, layoutSizeY)
 	l.info = NewInfo(infoWidth, layoutSizeY)
-
 	return l
 }
 
-func (l *Layout) Update(input *Input) error {
-	if err := l.board.Update(input); err != nil {
+func (l *Layout) Update() error {
+	if err := l.board.Update(); err != nil {
 		return err
 	}
-	if err := l.info.Update(input); err != nil {
+	if err := l.info.Update(); err != nil {
 		return err
 	}
 	return nil

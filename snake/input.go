@@ -12,38 +12,32 @@ const (
 	leftDirection
 )
 
+const (
+	topicMove    = "topic:move"
+	topicRestart = "topic:restart"
+)
+
 type Input struct {
-	direction int
-	restart   bool
 }
 
 func NewInput() *Input {
-	return &Input{
-		direction: topDirection,
-	}
+	return &Input{}
 }
 
 func (i *Input) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		i.direction = topDirection
+		bus.Publish(topicMove, topDirection)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-		i.direction = bottomDirection
+		bus.Publish(topicMove, bottomDirection)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-		i.direction = rightDirection
+		bus.Publish(topicMove, rightDirection)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-		i.direction = leftDirection
+		bus.Publish(topicMove, leftDirection)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-		i.restart = true
+		bus.Publish(topicRestart)
 	}
-}
-
-func (i *Input) ClearRestart() bool {
-	if i.restart {
-		i.restart = false
-	}
-	return i.restart
 }
