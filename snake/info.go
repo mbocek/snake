@@ -63,7 +63,7 @@ func (i *Info) Update() error {
 
 func (i *Info) Draw(infoImage *ebiten.Image) {
 	infoImage.Fill(color.RGBA{0xbb, 0xbb, 0x00, 0xaa})
-	text.Draw(infoImage, strconv.Itoa(score), mplusNormalFont, 20, 40, color.White)
+	text.Draw(infoImage, "Score: "+strconv.Itoa(score), mplusNormalFont, 20, 40, color.White)
 }
 
 func (i *Info) scoreHandler(points int) {

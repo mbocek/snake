@@ -3,8 +3,6 @@ package snake
 import (
 	"errors"
 	"math/rand"
-
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -61,7 +59,6 @@ func (s *Snake) moveLeft() {
 func (s *Snake) moveRight() {
 	position := s.positions[0]
 	newPosition := Position{x: position.x + 1, y: position.y}
-	log.Debug("Position: %w", newPosition)
 	s.update(s.positions, newPosition)
 }
 
