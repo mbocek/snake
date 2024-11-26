@@ -3,9 +3,9 @@ package snake
 type TileType int
 
 const (
-	empty TileType = iota
-	food
-	snake
+	TileEmpty TileType = iota
+	TileFood
+	TileSnake
 )
 
 type Tile struct {
@@ -22,15 +22,22 @@ func NewTile(tileType TileType) *Tile {
 }
 
 func (t *Tile) Snake() {
-	if t.tileType != snake {
-		t.tileType = snake
+	if t.tileType != TileSnake {
+		t.tileType = TileSnake
 		t.repaint = true
 	}
 }
 
 func (t *Tile) Empty() {
-	if t.tileType != empty {
-		t.tileType = empty
+	if t.tileType != TileEmpty {
+		t.tileType = TileEmpty
+		t.repaint = true
+	}
+}
+
+func (t *Tile) Food() {
+	if t.tileType != TileFood {
+		t.tileType = TileFood
 		t.repaint = true
 	}
 }
@@ -40,11 +47,11 @@ func (t *Tile) Type() TileType {
 }
 
 func (t *Tile) IsFood() bool {
-	return t.tileType == food
+	return t.tileType == TileFood
 }
 
 func (t *Tile) IsSnake() bool {
-	return t.tileType == snake
+	return t.tileType == TileSnake
 }
 
 func (t *Tile) Repaint() bool {

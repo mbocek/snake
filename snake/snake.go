@@ -7,6 +7,9 @@ import (
 const (
 	topicSnakeOutOfBoard = "topic:snake:outOfBoard"
 	topicFood            = "topic:snake:food"
+	topicIncreaseSpeed   = "topic:snake:increaseSpeed"
+	lengthToIncrease     = 3
+	speedIncrease        = 2
 )
 
 type Snake struct {
@@ -86,6 +89,9 @@ func (s *Snake) update(newPosition Position) {
 		if tiles[newPosition.y][newPosition.x].IsFood() {
 			tiles[newPosition.y][newPosition.x].Empty()
 			bus.Publish(topicFood, 1)
+			if len(s.positions)%lengthToIncrease == 0 {
+				bus.Publish(topicIncreaseSpeed, speedIncrease)
+			}
 		} else {
 			s.positions = s.positions[:len(s.positions)-1]
 		}

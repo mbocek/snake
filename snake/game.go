@@ -5,6 +5,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/rs/zerolog/log"
+	"os"
 )
 
 const (
@@ -32,6 +33,9 @@ func NewGame(sizeX, sizeY int) *Game {
 	}
 	if err := bus.Subscribe(topicRestart, g.restartHandler); err != nil {
 		log.Fatal().Err(err).Str("topic", topicRestart).Msg("cannot subscribe to topic")
+	}
+	if err := bus.Subscribe(topicShutDown, g.shutDownHandler); err != nil {
+		log.Fatal().Err(err).Str("topic", topicShutDown).Msg("cannot subscribe to topic")
 	}
 	return g
 }
@@ -61,4 +65,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func (g *Game) restartHandler() {
 	log.Debug().Msg("restart game")
 	g.gameOver = false
+}
+
+func (g *Game) shutDownHandler() {
+	log.Debug().Msg("shutdown game")
+	os.Exit(0)
 }

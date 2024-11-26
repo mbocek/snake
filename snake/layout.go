@@ -5,14 +5,15 @@ import "github.com/hajimehoshi/ebiten/v2"
 type Layout struct {
 	board      *Board
 	info       *Info
+	speed      *Speed
 	boardImage *ebiten.Image
 	infoImage  *ebiten.Image
 }
 
 func NewLayout(layoutSizeX, layoutSizeY int) *Layout {
-	l := &Layout{}
-	l.board = NewBoard(layoutSizeX-infoWidth, layoutSizeY)
-	l.info = NewInfo(infoWidth, layoutSizeY)
+	l := &Layout{speed: NewSpeed(3)}
+	l.board = NewBoard(layoutSizeX-infoWidth, layoutSizeY, l.speed)
+	l.info = NewInfo(infoWidth, layoutSizeY, l.speed)
 	return l
 }
 

@@ -13,28 +13,25 @@ import (
 )
 
 type Info struct {
-	//score int
-	sizeX int
-	sizeY int
+	score           int
+	sizeX           int
+	sizeY           int
+	speed           *Speed
+	mplusNormalFont font.Face
 }
 
 const (
 	infoWidth = 150
 )
 
-var (
-	mplusNormalFont font.Face
-	score           = 0
-)
-
-func init() {
+func (i *Info) init() {
 	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot load font")
 	}
 
 	const dpi = 72
-	mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	i.mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    24,
 		DPI:     dpi,
 		Hinting: font.HintingFull,
@@ -44,12 +41,16 @@ func init() {
 	}
 }
 
-func NewInfo(sizeX, sizeY int) *Info {
+func NewInfo(sizeX, sizeY int, speed *Speed) *Info {
 	i := &Info{
 		sizeX: sizeX,
 		sizeY: sizeY,
+		speed: speed,
 	}
-	bus.Subscribe(topicFood, i.scoreHandler)
+	if err := bus.Subscribe(topicFood, i.scoreHandler); err != nil {
+		log.Fatal().Err(err).Str("topic", topicFood).Msg("cannot subscribe to topic")
+	}
+	i.init()
 	return i
 }
 
@@ -63,9 +64,10 @@ func (i *Info) Update() error {
 
 func (i *Info) Draw(infoImage *ebiten.Image) {
 	infoImage.Fill(color.RGBA{0xbb, 0xbb, 0x00, 0xaa})
-	text.Draw(infoImage, "Score: "+strconv.Itoa(score), mplusNormalFont, 20, 40, color.White)
+	text.Draw(infoImage, "Score: "+strconv.Itoa(i.score), i.mplusNormalFont, 20, 40, color.White)
+	text.Draw(infoImage, "Speed: "+strconv.Itoa(i.speed.Speed()), i.mplusNormalFont, 20, 80, color.White)
 }
 
 func (i *Info) scoreHandler(points int) {
-	score += points
+	i.score += points
 }

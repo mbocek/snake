@@ -9,16 +9,17 @@ import (
 type Direction int
 
 const (
-	noDirection     Direction = -1
-	topDirection    Direction = 0
-	bottomDirection Direction = 1
-	rightDirection  Direction = 2
-	leftDirection   Direction = 3
+	noDirection Direction = iota
+	topDirection
+	bottomDirection
+	rightDirection
+	leftDirection
 )
 
 const (
-	topicMove    = "topic:move"
-	topicRestart = "topic:restart"
+	topicMove     = "topic:move"
+	topicRestart  = "topic:restart"
+	topicShutDown = "topic:shutdown"
 )
 
 type Input struct {
@@ -47,5 +48,8 @@ func (i *Input) Update() {
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		bus.Publish(topicRestart)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+		bus.Publish(topicShutDown)
 	}
 }
