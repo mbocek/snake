@@ -4,12 +4,12 @@ import (
 	"github.com/asaskevich/EventBus"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 const (
-	ScreenWidth  = 420
-	ScreenHeight = 600
+	ScreenWidth  = 640
+	ScreenHeight = 480
 )
 
 var (
@@ -27,8 +27,12 @@ func NewGame(sizeX, sizeY int) *Game {
 		input: NewInput(),
 	}
 	g.layout = NewLayout(sizeX, sizeY)
-	bus.Subscribe(topicSnakeOutOfBoard, g.gameOverHandler)
-	bus.Subscribe(topicRestart, g.restartHandler)
+	if err := bus.Subscribe(topicSnakeOutOfBoard, g.gameOverHandler); err != nil {
+		log.Fatal().Err(err).Str("topic", topicSnakeOutOfBoard).Msg("cannot subscribe to topic")
+	}
+	if err := bus.Subscribe(topicRestart, g.restartHandler); err != nil {
+		log.Fatal().Err(err).Str("topic", topicRestart).Msg("cannot subscribe to topic")
+	}
 	return g
 }
 
@@ -55,6 +59,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) restartHandler() {
-	log.Debug("Restart game")
+	log.Debug().Msg("restart game")
 	g.gameOver = false
 }

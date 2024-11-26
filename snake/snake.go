@@ -1,7 +1,6 @@
 package snake
 
 import (
-	"errors"
 	"math/rand"
 )
 
@@ -12,7 +11,7 @@ const (
 
 type Snake struct {
 	positions   Positions
-	tiles       Tiles
+	tiles       *Tiles
 	boardWidth  int
 	boardHeight int
 }
@@ -23,17 +22,13 @@ type Position struct {
 
 type Positions []Position
 
-var (
-	ErrorOutOfBoard = errors.New("Snake is out of theBoard")
-)
-
-func NewSnake(tiles Tiles) *Snake {
+func NewSnake(tiles *Tiles) *Snake {
 	s := &Snake{
 		positions: make(Positions, 0),
 		tiles:     tiles,
 	}
-	s.boardWidth = len(s.tiles[0])
-	s.boardHeight = len(s.tiles)
+	s.boardWidth = len((*s.tiles)[0])
+	s.boardHeight = len(*s.tiles)
 	s.init()
 	return s
 }
@@ -41,28 +36,28 @@ func NewSnake(tiles Tiles) *Snake {
 func (s *Snake) moveUp() {
 	position := s.positions[0]
 	newPosition := Position{x: position.x, y: position.y - 1}
-	s.update(s.positions, newPosition)
+	s.update(newPosition)
 }
 
 func (s *Snake) moveDown() {
 	position := s.positions[0]
 	newPosition := Position{x: position.x, y: position.y + 1}
-	s.update(s.positions, newPosition)
+	s.update(newPosition)
 }
 
 func (s *Snake) moveLeft() {
 	position := s.positions[0]
 	newPosition := Position{x: position.x - 1, y: position.y}
-	s.update(s.positions, newPosition)
+	s.update(newPosition)
 }
 
 func (s *Snake) moveRight() {
 	position := s.positions[0]
 	newPosition := Position{x: position.x + 1, y: position.y}
-	s.update(s.positions, newPosition)
+	s.update(newPosition)
 }
 
-func (s *Snake) Move(direction int) {
+func (s *Snake) Move(direction Direction) {
 	switch direction {
 	case topDirection:
 		s.moveUp()
@@ -75,11 +70,21 @@ func (s *Snake) Move(direction int) {
 	}
 }
 
-func (s *Snake) update(positions Positions, newPosition Position) {
+func (s *Snake) Contains(x, y int) bool {
+	for _, p := range s.positions {
+		if p.x == x && p.y == y {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Snake) update(newPosition Position) {
 	if !s.checkOutOfBoard(newPosition) {
 		s.positions = append(Positions{newPosition}, s.positions...)
-		if s.tiles[newPosition.y][newPosition.x].IsFood() {
-			s.tiles[newPosition.y][newPosition.x].Empty()
+		tiles := *s.tiles
+		if tiles[newPosition.y][newPosition.x].IsFood() {
+			tiles[newPosition.y][newPosition.x].Empty()
 			bus.Publish(topicFood, 1)
 		} else {
 			s.positions = s.positions[:len(s.positions)-1]
@@ -88,7 +93,7 @@ func (s *Snake) update(positions Positions, newPosition Position) {
 }
 
 func (s *Snake) checkOutOfBoard(position Position) bool {
-	if position.x < 0 || position.x-1 > s.boardWidth || position.y < 0 || position.y-1 > s.boardHeight {
+	if position.x < 0 || position.x > s.boardWidth-1 || position.y < 0 || position.y > s.boardHeight-1 {
 		bus.Publish(topicSnakeOutOfBoard, true)
 		return true
 	}

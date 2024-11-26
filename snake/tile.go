@@ -1,11 +1,5 @@
 package snake
 
-import (
-	"image/color"
-
-	"github.com/hajimehoshi/ebiten/v2"
-)
-
 type TileType int
 
 const (
@@ -14,48 +8,49 @@ const (
 	snake
 )
 
-var (
-	emptyColor = color.RGBA{0x11, 0x11, 0x11, 0xff}
-	foodColor  = color.RGBA{0x00, 0x99, 0x00, 0xff}
-	snakeColor = color.RGBA{0xff, 0xff, 0x00, 0xff}
-)
-
 type Tile struct {
 	tileType TileType
+	repaint  bool
 }
 
 func NewTile(tileType TileType) *Tile {
 	t := &Tile{
 		tileType: tileType,
+		repaint:  true,
 	}
 	return t
 }
 
-func (t *Tile) Draw(tileImage *ebiten.Image) {
-	switch t.tileType {
-	case empty:
-		tileImage.Fill(emptyColor)
-	case food:
-		tileImage.Fill(foodColor)
-	case snake:
-		tileImage.Fill(snakeColor)
-	}
-}
-
 func (t *Tile) Snake() {
-	t.tileType = snake
+	if t.tileType != snake {
+		t.tileType = snake
+		t.repaint = true
+	}
 }
 
-func (t *Tile) Clone() *Tile {
-	return &Tile{
-		tileType: t.tileType,
+func (t *Tile) Empty() {
+	if t.tileType != empty {
+		t.tileType = empty
+		t.repaint = true
 	}
+}
+
+func (t *Tile) Type() TileType {
+	return t.tileType
 }
 
 func (t *Tile) IsFood() bool {
 	return t.tileType == food
 }
 
-func (t *Tile) Empty() {
-	t.tileType = empty
+func (t *Tile) IsSnake() bool {
+	return t.tileType == snake
+}
+
+func (t *Tile) Repaint() bool {
+	if t.repaint {
+		t.repaint = false
+		return true
+	}
+	return false
 }

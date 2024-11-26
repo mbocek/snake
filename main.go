@@ -1,24 +1,22 @@
 package main
 
 import (
-	"os"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mbocek/snake/snake"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"os"
+	"time"
 )
 
-func init() {
-	log.SetFormatter(&log.TextFormatter{DisableColors: true, FullTimestamp: true})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
-}
-
 func main() {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339Nano})
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
+
 	game := snake.NewGame(snake.ScreenWidth, snake.ScreenHeight)
 	ebiten.SetWindowSize(snake.ScreenWidth, snake.ScreenHeight)
 	ebiten.SetWindowTitle("Snake")
 	if err := ebiten.RunGame(game); err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("cannot run the game")
 	}
 }

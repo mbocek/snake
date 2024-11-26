@@ -1,13 +1,13 @@
 package snake
 
 import (
+	"github.com/rs/zerolog/log"
 	"image/color"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -30,7 +30,7 @@ var (
 func init() {
 	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("cannot load font")
 	}
 
 	const dpi = 72
@@ -40,7 +40,7 @@ func init() {
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("cannot open font")
 	}
 }
 
